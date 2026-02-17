@@ -182,10 +182,24 @@ function updateCartTotal(total) {
 }
 
 function showLoading(container) {
-  container.innerHTML = `
-    <div class="col-span-full flex justify-center py-16">
-      <span class="loading loading-spinner loading-lg text-primary"></span>
+  const skeletonCard = `
+    <div class="card bg-base-100 shadow-md border border-base-200">
+      <figure class="px-4 pt-4">
+        <div class="skeleton h-48 w-full rounded-lg"></div>
+      </figure>
+      <div class="card-body p-4 gap-2">
+        <div class="skeleton h-4 w-16"></div>
+        <div class="skeleton h-4 w-full"></div>
+        <div class="skeleton h-4 w-3/4"></div>
+        <div class="skeleton h-6 w-20"></div>
+        <div class="flex gap-2 mt-2">
+          <div class="skeleton h-8 w-24"></div>
+          <div class="skeleton h-8 w-20"></div>
+        </div>
+      </div>
     </div>`;
+  
+  container.innerHTML = skeletonCard.repeat(6);
 }
 
 function hideLoading(container) {
