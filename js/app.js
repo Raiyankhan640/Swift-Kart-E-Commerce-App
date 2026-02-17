@@ -49,11 +49,13 @@ function openCart() {
   cartDrawer.classList.remove("hidden");
   document.body.style.overflow = "hidden";
   refreshCartUI();
+  closeCartBtn.focus();
 }
 
 function closeCart() {
   cartDrawer.classList.add("hidden");
   document.body.style.overflow = "";
+  cartBtn.focus();
 }
 
 async function handleAddToCart(productId) {
@@ -233,9 +235,25 @@ cartBtn.addEventListener("click", openCart);
 closeCartBtn.addEventListener("click", closeCart);
 cartOverlay.addEventListener("click", closeCart);
 
+cartBtn.addEventListener("keydown", (e) => {
+  if (e.key === "Enter" || e.key === " ") {
+    e.preventDefault();
+    openCart();
+  }
+});
+
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape" && !cartDrawer.classList.contains("hidden")) {
     closeCart();
+  }
+  
+  if ((e.ctrlKey || e.metaKey) && e.key === "k") {
+    e.preventDefault();
+    if (cartDrawer.classList.contains("hidden")) {
+      openCart();
+    } else {
+      closeCart();
+    }
   }
 });
 
