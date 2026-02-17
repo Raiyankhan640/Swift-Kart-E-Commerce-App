@@ -3,6 +3,11 @@ function truncateText(text, maxLength = 40) {
   return text.substring(0, maxLength) + "...";
 }
 
+function handleImageError(e) {
+  e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Crect fill='%23f0f0f0' width='200' height='200'/%3E%3Ctext fill='%23999' x='50%25' y='50%25' text-anchor='middle' dy='.3em' font-family='Arial, sans-serif' font-size='14'%3EImage not available%3C/text%3E%3C/svg%3E";
+  e.target.classList.add("opacity-50");
+}
+
 function generateStars(rating) {
   const fullStars = Math.floor(rating);
   const halfStar = rating % 1 >= 0.5 ? 1 : 0;
@@ -76,6 +81,10 @@ function createProductCard(product) {
       </div>
     </div>
   `;
+  
+  const img = card.querySelector("img");
+  if (img) img.onerror = handleImageError;
+  
   return card;
 }
 
@@ -107,7 +116,7 @@ function renderProductModal(product) {
         <p class="text-gray-600 text-sm leading-relaxed">${product.description}</p>
         <div class="flex items-center gap-2">
           ${generateStars(product.rating.rate)}
-          <span class="text-sm text-gray-500">${product.rating.rate} / 5 (${product.rating.count} reviews)</span>
+          <span class="text-sm text-gray-500">${product.rating.rate} / 5 (${product.rating.count}) reviews)</span>
         </div>
         <p class="text-2xl font-bold text-primary">$${product.price.toFixed(2)}</p>
         <div class="flex gap-3 pt-2">
@@ -121,6 +130,9 @@ function renderProductModal(product) {
       </div>
     </div>
   `;
+  
+  const img = content.querySelector("img");
+  if (img) img.onerror = handleImageError;
 }
 
 function renderCartItems(cart, container) {
