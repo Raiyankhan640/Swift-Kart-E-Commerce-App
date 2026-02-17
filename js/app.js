@@ -108,10 +108,18 @@ async function loadProducts(category = "all") {
       category === "all" ? products : [...new Map([...allProducts, ...products].map((p) => [p.id, p])).values()];
     renderProducts(products, productsContainer);
   } catch (err) {
-    productsContainer.innerHTML = `<div class="col-span-full text-center py-12 text-error">
-      <i class="fa-solid fa-triangle-exclamation text-3xl mb-2"></i>
-      <p>Failed to load products. Please try again.</p>
+    productsContainer.innerHTML = `<div class="col-span-full text-center py-12 text-error space-y-4">
+      <i class="fa-solid fa-triangle-exclamation text-4xl mb-2"></i>
+      <p class="text-lg">Failed to load products. Please check your connection.</p>
+      <button class="btn btn-primary retry-products-btn">
+        <i class="fa-solid fa-rotate-right"></i> Retry
+      </button>
     </div>`;
+    
+    const retryBtn = productsContainer.querySelector(".retry-products-btn");
+    if (retryBtn) {
+      retryBtn.addEventListener("click", () => loadProducts(activeCategory));
+    }
   }
 }
 
@@ -121,11 +129,23 @@ async function loadTopRated() {
     allProducts = products;
     renderTopRated(products, topRatedContainer);
   } catch (err) {
-    topRatedContainer.innerHTML = `<p class="col-span-full text-center text-error">Failed to load top rated products.</p>`;
+    topRatedContainer.innerHTML = `<div class="col-span-full text-center text-error space-y-3">
+      <i class="fa-solid fa-triangle-exclamation text-3xl"></i>
+      <p>Failed to load top rated products.</p>
+      <button class="btn btn-sm btn-primary retry-top-rated-btn">
+        <i class="fa-solid fa-rotate-right"></i> Retry
+      </button>
+    </div>`;
+    
+    const retryBtn = topRatedContainer.querySelector(".retry-top-rated-btn");
+    if (retryBtn) {
+      retryBtn.addEventListener("click", loadTopRated);
+    }
   }
 }
 
-categoryFilters.addEventListener("click", (e) => {
+categoryFilters.addEventListener("click", (e) =>
+ {
   const btn = e.target.closest("button[data-category]");
   if (!btn) return;
   const category = btn.dataset.category;
@@ -232,6 +252,77 @@ document.querySelectorAll('a[href^="#"]').forEach((link) => {
   link.addEventListener("click", () => {
     const mobileMenu = document.querySelector(".dropdown-content");
     if (mobileMenu) mobileMenu.blur();
+  });
+});
+
+document.getElementById("checkout-btn").addEventListener("click", () => {
+  const cart = getCart();
+  if (cart.length === 0) {
+    const toast = document.createElement("div");
+    toast.className = "toast toast-end toast-top z-[200]";
+    toast.innerHTML = `<div class="alert alert-warning shadow-lg"><i class="fa-solid fa-exclamation-triangle"></i><span>Your cart is empty!</span></div>`;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 2000);
+    return;
+  }
+
+  const total = getCartTotal();
+  const itemCount = getCartCount();
+  
+  const confirmMsg = `Order Details:\n\nItems: ${itemCount}\nTotal: $${total.toFixed(2)}\n\nConfirm your order?`;
+  
+  if (confirm(confirmMsg)) {
+    import("./cart.js").then(({ clearCart }) => {
+      clearCart();
+      refreshCartUI();
+      closeCart();
+      
+      const toast = document.createElement("div");
+      toast.className = "toast toast-end toast-top z-[200]";
+      toast.innerHTML = `<div class="alert alert-success shadow-lg"><i class="fa-solid fa-check-circle"></i><span>Order placed successfully! Total: $${total.toFixed(2)}</span></div>`;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 4000);
+    });
+  }
+});
+
+const scrollTopBtn = document.getElementById("scroll-top-btn");
+
+window.addEventListener("scroll", () => {
+  if (window.scrollY > 300) {
+    scrollTopBtn.classList.remove("opacity-0", "pointer-events-none");
+    scrollTopBtn.classList.add("opacity-100");
+  } else {
+    scrollTopBtn.classList.add("opacity-0", "pointer-events-none");
+    scrollTopBtn.classList.remove("opacity-100");
+  }
+});
+
+scrollTopBtn.addEventListener("click", () => {
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth",
+  });
+});
+
+const sections = document.querySelectorAll("section[id]");
+const navLinks = document.querySelectorAll(".nav-link");
+
+window.addEventListener("scroll", () => {
+  let current = "";
+  sections.forEach((section) => {
+    const sectionTop = section.offsetTop;
+    const sectionHeight = section.clientHeight;
+    if (window.scrollY >= sectionTop - 200) {
+      current = section.getAttribute("id");
+    }
+  });
+
+  navLinks.forEach((link) => {
+    link.classList.remove("active");
+    if (link.getAttribute("href") === `#${current}`) {
+      link.classList.add("active");
+    }
   });
 });
 
